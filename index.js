@@ -24,6 +24,7 @@ class MySerialPortMock extends SerialPortMock { // <2>
 var port = new MySerialPortMock({path: '/dev/ROBOT', baudRate: 9600});
 
 s.on("connection", ws => {
+    // TODO: SerialPortが通信できなかった場合の例外処理
     port = new SerialPort({
         path:"COM4",
         baudRate: 9600
