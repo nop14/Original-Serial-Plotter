@@ -40,6 +40,8 @@ function App() {
   const [ data, setData ] = useState([{name: 0, value: 0}]);
   // グラフに表示するために整形したデータ配列
   const [ displayData, setDisplayData ] = useState([{name: 0, value: 0}]);
+  // ダウンロード用に成形したデータ配列
+  const [ downloadData, setDownloadData ] = useState([[0,0]]);
   // x軸の範囲制限を行うかどうかのフラグ
   const [ xEnable, setXEnable ] = useState(false);
   // x軸の下限と上限
@@ -174,6 +176,33 @@ function App() {
   const handleYRangeChange = (event, newValue) => {
     setYRange(newValue);
   };
+
+
+  const download = (event) => {
+    setDownloadData(data.map(({name, value}) => {
+      if(xEnable){
+        if(name >= xRange[0] && name <=xRange[1]){
+          return [ name, value ];
+        }
+      }else{
+        return [name, value];
+      }
+    }).filter(Boolean));
+    console.log(displayData);
+    console.log("download");
+    // https://qiita.com/megadreams14/items/b4521308d5be65f0c544
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF])
+    const records = downloadData.map((elem)=>elem.join(',')).join('\r\n')
+    const blob = new Blob([bom, records], {type: "text/csv"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.download = "result.csv";
+    a.href = url;
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
 
 
   return (
@@ -319,6 +348,9 @@ function App() {
             />
           </Box>
         </Box>
+        <div>
+          <Button variant="contained" onClick={download}>Download</Button>
+        </div>
       </header>
     </div>
   );
